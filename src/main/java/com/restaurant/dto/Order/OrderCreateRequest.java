@@ -13,9 +13,6 @@ import java.util.List;
 @Setter
 public class OrderCreateRequest {
 
-    @NotNull(message = "Order id is required")
-    private Integer id;
-
     @NotNull(message = "User id is required")
     private Integer userId;
 

@@ -10,9 +10,6 @@ import java.math.BigDecimal;
 @Setter
 public class ProductCreateRequest {
 
-    @NotNull(message = "Product id is required")
-    private Integer id;
-
     @NotBlank(message = "Product name is required")
     @Size(max = 100, message = "Product name must not exceed 100 characters")
     private String name;

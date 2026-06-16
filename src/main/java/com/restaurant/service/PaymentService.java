@@ -22,13 +22,15 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
+    private final NotificationService notificationService;
 
     public PaymentService(PaymentRepository paymentRepository,
                           OrderRepository orderRepository,
-                          PaymentMapper paymentMapper) {
+                          PaymentMapper paymentMapper, NotificationService notificationService) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.paymentMapper = paymentMapper;
+        this.notificationService = notificationService;
     }
 
     public List<PaymentResponse> getAllPayments() {
@@ -50,13 +52,6 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponse payOrder(PaymentCreateRequest request) {
-
-        if (paymentRepository.existsById(request.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Payment already exists with id: " + request.getId()
-            );
-        }
 
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -86,7 +81,6 @@ public class PaymentService {
         );
 
         Payment payment = new Payment();
-        payment.setId(request.getId());
         payment.setOrder(order);
         payment.setPaymentMethod(request.getPaymentMethod());
         payment.setOriginalAmount(originalAmount);
@@ -99,7 +93,23 @@ public class PaymentService {
         orderRepository.save(order);
 
         Payment savedPayment = paymentRepository.save(payment);
+        notificationService.createSystemNotification(
+                order,
+                "email",
+                "Order paid successfully"
+        );
 
+        notificationService.createSystemNotification(
+                order,
+                "sms",
+                "Order paid successfully"
+        );
+
+        notificationService.createSystemNotification(
+                order,
+                "app",
+                "Order paid successfully"
+        );
         return paymentMapper.toResponse(savedPayment);
     }
 

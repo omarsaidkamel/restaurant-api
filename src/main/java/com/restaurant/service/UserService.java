@@ -37,13 +37,6 @@ public class UserService {
     }
 
     public UserResponse createUser(UserCreateRequest request) {
-        if (userRepository.existsById(request.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "User already exists with id: " + request.getId()
-            );
-        }
-
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,

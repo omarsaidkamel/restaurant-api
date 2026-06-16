@@ -10,9 +10,6 @@ import java.math.BigDecimal;
 @Setter
 public class PaymentCreateRequest {
 
-    @NotNull(message = "Payment id is required")
-    private Integer id;
-
     @NotNull(message = "Order id is required")
     private Integer orderId;
 

@@ -9,9 +9,6 @@ import lombok.Setter;
 @Setter
 public class OrderItemCreateRequest {
 
-    @NotNull(message = "Order item id is required")
-    private Integer id;
-
     @NotNull(message = "Product id is required")
     private Integer productId;
 

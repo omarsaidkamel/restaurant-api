@@ -8,9 +8,6 @@ import lombok.Setter;
 @Getter
 public class UserCreateRequest {
 
-    @NotNull(message = "User id is required")
-    private Integer id;
-
     @NotBlank(message = "User name is required")
     @Size(max = 100, message = "User name must not exceed 100 characters")
     private String name;

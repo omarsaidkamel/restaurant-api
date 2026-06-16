@@ -11,7 +11,6 @@ public class UserMapper {
 
     public User toEntity(UserCreateRequest request) {
         User user = new User();
-        user.setId(request.getId());
         user.setName(request.getName());
         user.setEmail(request.getEmail());
 

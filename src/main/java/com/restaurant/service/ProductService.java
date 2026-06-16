@@ -37,13 +37,6 @@ public class ProductService {
     }
 
     public ProductResponse createProduct(ProductCreateRequest request) {
-        if (productRepository.existsById(request.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Product already exists with id: " + request.getId()
-            );
-        }
-
         Product product = productMapper.toEntity(request);
         Product savedProduct = productRepository.save(product);
 

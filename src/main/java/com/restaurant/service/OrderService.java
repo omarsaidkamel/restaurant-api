@@ -63,13 +63,6 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderCreateRequest request) {
 
-        if (orderRepository.existsById(request.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Order already exists with id: " + request.getId()
-            );
-        }
-
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -77,7 +70,6 @@ public class OrderService {
                 ));
 
         Order order = new Order();
-        order.setId(request.getId());
         order.setUser(user);
         order.setPlaced(true);
         order.setPaid(false);
@@ -90,13 +82,6 @@ public class OrderService {
         BigDecimal totalPrice = BigDecimal.ZERO;
 
         for (OrderItemCreateRequest itemRequest : request.getItems()) {
-
-            if (orderItemRepository.existsById(itemRequest.getId())) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Order item already exists with id: " + itemRequest.getId()
-                );
-            }
 
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -118,7 +103,6 @@ public class OrderService {
             productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
-            orderItem.setId(itemRequest.getId());
             orderItem.setOrder(savedOrder);
             orderItem.setProduct(product);
             orderItem.setQuantity(itemRequest.getQuantity());
