@@ -1,8 +1,10 @@
 package com.restaurant.service;
 
+import com.restaurant.dto.DashboardSummary.OrderSummaryResponse;
 import com.restaurant.dto.Order.OrderCreateRequest;
 import com.restaurant.dto.OrderItems.OrderItemCreateRequest;
 import com.restaurant.dto.Order.OrderResponse;
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.entity.Order;
 import com.restaurant.entity.OrderItem;
 import com.restaurant.entity.Product;
@@ -12,6 +14,10 @@ import com.restaurant.repository.OrderItemRepository;
 import com.restaurant.repository.OrderRepository;
 import com.restaurant.repository.ProductRepository;
 import com.restaurant.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,5 +127,46 @@ public class OrderService {
         finalOrder.setItems(orderItems);
 
         return orderMapper.toResponse(finalOrder);
+    }
+
+    public PaginatedResponse<OrderSummaryResponse> searchOrders(
+            Integer userId,
+            Boolean paid,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Order> orderPage;
+
+        if (userId != null && paid != null) {
+            orderPage = orderRepository.findByUser_IdAndPaid(userId, paid, pageable);
+        } else if (userId != null) {
+            orderPage = orderRepository.findByUser_Id(userId, pageable);
+        } else if (paid != null) {
+            orderPage = orderRepository.findByPaid(paid, pageable);
+        } else {
+            orderPage = orderRepository.findAll(pageable);
+        }
+
+        List<OrderSummaryResponse> content = orderPage.getContent()
+                .stream()
+                .map(orderMapper::toSummaryResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                content,
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.isLast()
+        );
     }
 }

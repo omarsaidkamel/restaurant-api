@@ -1,11 +1,16 @@
 package com.restaurant.service;
 
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.Product.ProductCreateRequest;
 import com.restaurant.dto.Product.ProductResponse;
 import com.restaurant.dto.Product.ProductUpdateRequest;
 import com.restaurant.entity.Product;
 import com.restaurant.mapper.ProductMapper;
 import com.restaurant.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -65,4 +70,66 @@ public class ProductService {
                         "Product not found with id: " + id
                 ));
     }
+
+    public PaginatedResponse<ProductResponse> searchProducts(
+            String search,
+            String category,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        String normalizedSearch = normalize(search);
+        String normalizedCategory = normalize(category);
+
+        Page<Product> productPage;
+
+        if (normalizedSearch != null && normalizedCategory != null) {
+            productPage = productRepository.findByNameContainingIgnoreCaseAndCategoryIgnoreCase(
+                    normalizedSearch,
+                    normalizedCategory,
+                    pageable
+            );
+        } else if (normalizedSearch != null) {
+            productPage = productRepository.findByNameContainingIgnoreCase(
+                    normalizedSearch,
+                    pageable
+            );
+        } else if (normalizedCategory != null) {
+            productPage = productRepository.findByCategoryIgnoreCase(
+                    normalizedCategory,
+                    pageable
+            );
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
+
+        List<ProductResponse> content = productPage.getContent()
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
+    }
+
 }

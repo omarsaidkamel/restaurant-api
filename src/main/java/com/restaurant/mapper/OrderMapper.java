@@ -1,5 +1,6 @@
 package com.restaurant.mapper;
 
+import com.restaurant.dto.DashboardSummary.OrderSummaryResponse;
 import com.restaurant.dto.OrderItems.OrderItemResponse;
 import com.restaurant.dto.Order.OrderResponse;
 import com.restaurant.entity.Order;
@@ -31,6 +32,19 @@ public class OrderMapper {
                 order.getPaid(),
                 order.getCreatedAt(),
                 items
+        );
+    }
+
+    public OrderSummaryResponse toSummaryResponse(Order order) {
+        return new OrderSummaryResponse(
+                order.getId(),
+                order.getUser().getId(),
+                order.getUser().getName(),
+                order.getTotalPrice(),
+                order.getPlaced(),
+                order.getPaid(),
+                order.getCreatedAt(),
+                order.getItems() == null ? 0 : order.getItems().size()
         );
     }
 }

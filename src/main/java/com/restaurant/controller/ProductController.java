@@ -1,5 +1,6 @@
 package com.restaurant.controller;
 
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.Product.ProductCreateRequest;
 import com.restaurant.dto.Product.ProductResponse;
 import com.restaurant.dto.Product.ProductUpdateRequest;
@@ -43,5 +44,24 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
+    }
+
+    @GetMapping("/search")
+    public PaginatedResponse<ProductResponse> searchProducts(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return productService.searchProducts(
+                search,
+                category,
+                page,
+                size,
+                sortBy,
+                direction
+        );
     }
 }
