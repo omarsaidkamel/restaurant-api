@@ -93,7 +93,7 @@ public class OrderService {
 
         for (OrderItemCreateRequest itemRequest : request.getItems()) {
 
-            Product product = productRepository.findById(itemRequest.getProductId())
+            Product product = productRepository.findByIdForUpdate(itemRequest.getProductId())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
                             "Product not found with id: " + itemRequest.getProductId()

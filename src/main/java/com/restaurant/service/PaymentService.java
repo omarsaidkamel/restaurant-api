@@ -8,6 +8,7 @@ import com.restaurant.entity.Payment;
 import com.restaurant.mapper.PaymentMapper;
 import com.restaurant.repository.OrderRepository;
 import com.restaurant.repository.PaymentRepository;
+import com.restaurant.util.BusinessValidationUtils;
 import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +64,12 @@ public class PaymentService {
     @Transactional
     public PaymentResponse payOrder(PaymentCreateRequest request) {
 
+        BusinessValidationUtils.validatePaymentMethod(request.getPaymentMethod());
+        BusinessValidationUtils.validateDiscountType(request.getDiscountType());
+
+        String paymentMethod = BusinessValidationUtils.normalize(request.getPaymentMethod());
+        String discountType = BusinessValidationUtils.normalize(request.getDiscountType());
+
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -86,15 +93,15 @@ public class PaymentService {
         BigDecimal originalAmount = order.getTotalPrice();
         BigDecimal finalAmount = calculateFinalAmount(
                 originalAmount,
-                request.getDiscountType(),
+                discountType,
                 request.getDiscountValue()
         );
 
         Payment payment = new Payment();
         payment.setOrder(order);
-        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setPaymentMethod(paymentMethod);
         payment.setOriginalAmount(originalAmount);
-        payment.setDiscountType(request.getDiscountType());
+        payment.setDiscountType(discountType);
         payment.setDiscountValue(request.getDiscountValue());
         payment.setFinalAmount(finalAmount);
         payment.setPaidAt(LocalDateTime.now());

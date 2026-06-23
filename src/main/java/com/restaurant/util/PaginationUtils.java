@@ -49,7 +49,7 @@ public final class PaginationUtils {
 
         String normalizedSortBy = sortBy.trim();
 
-        if (!allowedSortFields.contains(normalizedSortBy)) {
+        if (allowedSortFields != null && !allowedSortFields.contains(normalizedSortBy)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Invalid sort field: " + sortBy

@@ -8,6 +8,7 @@ import com.restaurant.entity.Order;
 import com.restaurant.mapper.NotificationMapper;
 import com.restaurant.repository.NotificationRepository;
 import com.restaurant.repository.OrderRepository;
+import com.restaurant.util.BusinessValidationUtils;
 import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +62,10 @@ public class NotificationService {
 
     public NotificationResponse createNotification(NotificationCreateRequest request) {
 
+        BusinessValidationUtils.validateNotificationType(request.getNotificationType());
+
+        String notificationType =
+                BusinessValidationUtils.normalize(request.getNotificationType());
 
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -70,7 +75,7 @@ public class NotificationService {
 
         Notification notification = new Notification();
         notification.setOrder(order);
-        notification.setNotificationType(request.getNotificationType());
+        notification.setNotificationType(notificationType);
         notification.setMessage(request.getMessage());
         notification.setSentAt(LocalDateTime.now());
 
@@ -80,9 +85,13 @@ public class NotificationService {
     }
 
     public void createSystemNotification(Order order, String notificationType, String message) {
+        BusinessValidationUtils.validateNotificationType(notificationType);
+
         Notification notification = new Notification();
         notification.setOrder(order);
-        notification.setNotificationType(notificationType);
+        notification.setNotificationType(
+                BusinessValidationUtils.normalize(notificationType)
+        );
         notification.setMessage(message);
         notification.setSentAt(LocalDateTime.now());
 
