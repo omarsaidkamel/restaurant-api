@@ -1,5 +1,6 @@
 package com.restaurant.controller;
 
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.User.UserCreateRequest;
 import com.restaurant.dto.User.UserResponse;
 import com.restaurant.dto.User.UserUpdateRequest;
@@ -22,6 +23,23 @@ public class UserController {
     @GetMapping
     public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/search")
+    public PaginatedResponse<UserResponse> searchUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return userService.searchUsers(
+                search,
+                page,
+                size,
+                sortBy,
+                direction
+        );
     }
 
     @GetMapping("/{id}")

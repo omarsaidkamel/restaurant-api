@@ -1,5 +1,6 @@
 package com.restaurant.controller;
 
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.Payment.PaymentCreateRequest;
 import com.restaurant.dto.Payment.PaymentResponse;
 import com.restaurant.service.PaymentService;
@@ -21,6 +22,25 @@ public class PaymentController {
     @GetMapping
     public List<PaymentResponse> getAllPayments() {
         return paymentService.getAllPayments();
+    }
+
+    @GetMapping("/search")
+    public PaginatedResponse<PaymentResponse> searchPayments(
+            @RequestParam(required = false) Integer orderId,
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "paidAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        return paymentService.searchPayments(
+                orderId,
+                paymentMethod,
+                page,
+                size,
+                sortBy,
+                direction
+        );
     }
 
     @GetMapping("/{id}")

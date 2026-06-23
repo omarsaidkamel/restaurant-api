@@ -1,5 +1,6 @@
 package com.restaurant.service;
 
+import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.Payment.PaymentCreateRequest;
 import com.restaurant.dto.Payment.PaymentResponse;
 import com.restaurant.entity.Order;
@@ -7,6 +8,11 @@ import com.restaurant.entity.Payment;
 import com.restaurant.mapper.PaymentMapper;
 import com.restaurant.repository.OrderRepository;
 import com.restaurant.repository.PaymentRepository;
+import com.restaurant.util.PaginationUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +21,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PaymentService {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS =
+            Set.of("id", "paymentMethod", "originalAmount", "discountType",
+                    "discountValue", "finalAmount", "paidAt");
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
@@ -151,5 +161,66 @@ public class PaymentService {
                 HttpStatus.BAD_REQUEST,
                 "Invalid discount type: " + discountType
         );
+    }
+
+    public PaginatedResponse<PaymentResponse> searchPayments(
+            Integer orderId,
+            String paymentMethod,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        PaginationUtils.validatePageAndSize(page, size);
+
+        Sort sort = PaginationUtils.buildSort(
+                sortBy,
+                direction,
+                ALLOWED_SORT_FIELDS
+        );
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        String normalizedPaymentMethod = normalize(paymentMethod);
+
+        Page<Payment> paymentPage;
+
+        if (orderId != null && normalizedPaymentMethod != null) {
+            paymentPage = paymentRepository.findByOrder_IdAndPaymentMethodIgnoreCase(
+                    orderId,
+                    normalizedPaymentMethod,
+                    pageable
+            );
+        } else if (orderId != null) {
+            paymentPage = paymentRepository.findByOrder_Id(orderId, pageable);
+        } else if (normalizedPaymentMethod != null) {
+            paymentPage = paymentRepository.findByPaymentMethodIgnoreCase(
+                    normalizedPaymentMethod,
+                    pageable
+            );
+        } else {
+            paymentPage = paymentRepository.findAll(pageable);
+        }
+
+        List<PaymentResponse> content = paymentPage.getContent()
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                content,
+                paymentPage.getNumber(),
+                paymentPage.getSize(),
+                paymentPage.getTotalElements(),
+                paymentPage.getTotalPages(),
+                paymentPage.isLast()
+        );
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
     }
 }

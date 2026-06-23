@@ -14,6 +14,7 @@ import com.restaurant.repository.OrderItemRepository;
 import com.restaurant.repository.OrderRepository;
 import com.restaurant.repository.ProductRepository;
 import com.restaurant.repository.UserRepository;
+import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,10 +28,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderService {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS =
+            Set.of("id", "totalPrice", "placed", "paid", "createdAt");
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
@@ -137,9 +141,13 @@ public class OrderService {
             String sortBy,
             String direction
     ) {
-        Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        PaginationUtils.validatePageAndSize(page, size);
+
+        Sort sort = PaginationUtils.buildSort(
+                sortBy,
+                direction,
+                ALLOWED_SORT_FIELDS
+        );
 
         Pageable pageable = PageRequest.of(page, size, sort);
 

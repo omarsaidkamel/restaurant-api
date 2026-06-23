@@ -7,6 +7,7 @@ import com.restaurant.dto.Product.ProductUpdateRequest;
 import com.restaurant.entity.Product;
 import com.restaurant.mapper.ProductMapper;
 import com.restaurant.repository.ProductRepository;
+import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProductService {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS =
+            Set.of("id", "name", "price", "stock", "category");
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -79,10 +83,13 @@ public class ProductService {
             String sortBy,
             String direction
     ) {
-        Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        PaginationUtils.validatePageAndSize(page, size);
 
+        Sort sort = PaginationUtils.buildSort(
+                sortBy,
+                direction,
+                ALLOWED_SORT_FIELDS
+        );
         Pageable pageable = PageRequest.of(page, size, sort);
 
         String normalizedSearch = normalize(search);
