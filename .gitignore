@@ -35,3 +35,20 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+
+.gradle/
+build/
+out/
+
+.idea/
+*.iml
+
+*.log
+
+.env
+application.properties
+
+.DS_Store
+Thumbs.db
