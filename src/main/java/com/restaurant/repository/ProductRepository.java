@@ -29,4 +29,27 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Integer id);
+
+
+    List<Product> findByActiveTrue();
+
+    Page<Product> findByActiveTrue(Pageable pageable);
+
+    Page<Product> findByActiveTrueAndNameContainingIgnoreCase(
+            String name,
+            Pageable pageable
+    );
+
+    Page<Product> findByActiveTrueAndCategoryIgnoreCase(
+            String category,
+            Pageable pageable
+    );
+
+    Page<Product> findByActiveTrueAndNameContainingIgnoreCaseAndCategoryIgnoreCase(
+            String name,
+            String category,
+            Pageable pageable
+    );
+
+    List<Product> findByActiveTrueAndStockLessThanEqual(Integer stock);
 }

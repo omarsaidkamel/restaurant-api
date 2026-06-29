@@ -6,6 +6,7 @@ import com.restaurant.dto.User.UserResponse;
 import com.restaurant.dto.User.UserUpdateRequest;
 import com.restaurant.entity.User;
 import com.restaurant.mapper.UserMapper;
+import com.restaurant.repository.OrderRepository;
 import com.restaurant.repository.UserRepository;
 import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
@@ -26,15 +27,18 @@ public class UserService {
             Set.of("id", "name", "email", "loyaltyPoints");
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final OrderRepository orderRepository;
 
     public UserService(UserRepository userRepository,
-                       UserMapper userMapper) {
+                       UserMapper userMapper,
+                       OrderRepository orderRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.orderRepository = orderRepository;
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findByActiveTrue()
                 .stream()
                 .map(userMapper::toResponse)
                 .toList();
@@ -81,7 +85,16 @@ public class UserService {
 
     public void deleteUser(Integer id) {
         User user = findUserById(id);
-        userRepository.delete(user);
+
+        /*if (orderRepository.existsByUser_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot delete user because user has existing orders"
+            );
+        }*/
+
+        user.setActive(false);
+        userRepository.save(user);
     }
 
     private User findUserById(Integer id) {
@@ -114,14 +127,12 @@ public class UserService {
         Page<User> userPage;
 
         if (normalizedSearch != null) {
-            userPage = userRepository
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                            normalizedSearch,
+            userPage = userRepository.searchActiveUsers(
                             normalizedSearch,
                             pageable
                     );
         } else {
-            userPage = userRepository.findAll(pageable);
+            userPage = userRepository.findByActiveTrue(pageable);
         }
 
         List<UserResponse> content = userPage.getContent()
@@ -144,5 +155,15 @@ public class UserService {
             return null;
         }
         return value.trim();
+    }
+
+    public UserResponse activateUser(Integer id) {
+        User user = findUserById(id);
+
+        user.setActive(true);
+
+        User savedUser = userRepository.save(user);
+
+        return userMapper.toResponse(savedUser);
     }
 }

@@ -21,4 +21,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Integer> {
             ORDER BY SUM(oi.quantity) DESC
             """)
     List<ProductSalesReportResponse> getProductSalesReport();
+
+    boolean existsByProduct_Id(Integer productId);
 }

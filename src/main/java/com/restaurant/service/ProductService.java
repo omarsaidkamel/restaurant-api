@@ -6,6 +6,7 @@ import com.restaurant.dto.Product.ProductResponse;
 import com.restaurant.dto.Product.ProductUpdateRequest;
 import com.restaurant.entity.Product;
 import com.restaurant.mapper.ProductMapper;
+import com.restaurant.repository.OrderItemRepository;
 import com.restaurant.repository.ProductRepository;
 import com.restaurant.util.PaginationUtils;
 import org.springframework.data.domain.Page;
@@ -26,15 +27,18 @@ public class ProductService {
             Set.of("id", "name", "price", "stock", "category");
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final OrderItemRepository orderItemRepository;
 
     public ProductService(ProductRepository productRepository,
-                          ProductMapper productMapper) {
+                          ProductMapper productMapper,
+                          OrderItemRepository orderItemRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.orderItemRepository = orderItemRepository;
     }
 
     public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll()
+        return productRepository.findByActiveTrue()
                 .stream()
                 .map(productMapper::toResponse)
                 .toList();
@@ -64,7 +68,16 @@ public class ProductService {
 
     public void deleteProduct(Integer id) {
         Product product = findProductById(id);
-        productRepository.delete(product);
+
+        /*if (orderItemRepository.existsByProduct_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot delete product because it is used in existing orders"
+            );
+        }*/
+
+        product.setActive(false);
+        productRepository.save(product);
     }
 
     private Product findProductById(Integer id) {
@@ -98,23 +111,26 @@ public class ProductService {
         Page<Product> productPage;
 
         if (normalizedSearch != null && normalizedCategory != null) {
-            productPage = productRepository.findByNameContainingIgnoreCaseAndCategoryIgnoreCase(
-                    normalizedSearch,
-                    normalizedCategory,
-                    pageable
-            );
+            productPage = productRepository
+                    .findByActiveTrueAndNameContainingIgnoreCaseAndCategoryIgnoreCase(
+                            normalizedSearch,
+                            normalizedCategory,
+                            pageable
+                    );
         } else if (normalizedSearch != null) {
-            productPage = productRepository.findByNameContainingIgnoreCase(
-                    normalizedSearch,
-                    pageable
-            );
+            productPage = productRepository
+                    .findByActiveTrueAndNameContainingIgnoreCase(
+                            normalizedSearch,
+                            pageable
+                    );
         } else if (normalizedCategory != null) {
-            productPage = productRepository.findByCategoryIgnoreCase(
-                    normalizedCategory,
-                    pageable
-            );
+            productPage = productRepository
+                    .findByActiveTrueAndCategoryIgnoreCase(
+                            normalizedCategory,
+                            pageable
+                    );
         } else {
-            productPage = productRepository.findAll(pageable);
+            productPage = productRepository.findByActiveTrue(pageable);
         }
 
         List<ProductResponse> content = productPage.getContent()
@@ -139,4 +155,13 @@ public class ProductService {
         return value.trim();
     }
 
+    public ProductResponse activateProduct(Integer id) {
+        Product product = findProductById(id);
+
+        product.setActive(true);
+
+        Product savedProduct = productRepository.save(product);
+
+        return productMapper.toResponse(savedProduct);
+    }
 }

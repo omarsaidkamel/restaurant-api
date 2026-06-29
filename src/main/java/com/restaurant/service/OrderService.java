@@ -99,6 +99,13 @@ public class OrderService {
                             "Product not found with id: " + itemRequest.getProductId()
                     ));
 
+            if (!Boolean.TRUE.equals(product.getActive())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Product is inactive: " + product.getName()
+                );
+            }
+
             if (product.getStock() < itemRequest.getQuantity()) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,

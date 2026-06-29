@@ -64,4 +64,9 @@ public class ProductController {
                 direction
         );
     }
+
+    @PatchMapping("/{id}/activate")
+    public ProductResponse activateProduct(@PathVariable Integer id) {
+        return productService.activateProduct(id);
+    }
 }

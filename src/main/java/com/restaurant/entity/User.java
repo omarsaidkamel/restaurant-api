@@ -23,14 +23,19 @@ public class User {
     @Column(name = "loyalty_points")
     private Integer loyaltyPoints;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
+
     public User() {
     }
 
-    public User(Integer id, String name, String email, Integer loyaltyPoints) {
+    public User(Integer id, String name, String email, Integer loyaltyPoints, Boolean active) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.loyaltyPoints = loyaltyPoints;
+        this.active = active;
     }
 
 }

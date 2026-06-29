@@ -28,6 +28,9 @@ public class Product {
     @Column(length = 100)
     private String category;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
     public Product() {
     }
 

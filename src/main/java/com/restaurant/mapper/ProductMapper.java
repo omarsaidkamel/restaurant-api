@@ -15,6 +15,7 @@ public class ProductMapper {
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setCategory(request.getCategory());
+        product.setActive(true); // Set active to true by default
         return product;
     }
 
@@ -24,7 +25,8 @@ public class ProductMapper {
                 product.getName(),
                 product.getPrice(),
                 product.getStock(),
-                product.getCategory()
+                product.getCategory(),
+                product.getActive()
         );
     }
 

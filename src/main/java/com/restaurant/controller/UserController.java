@@ -62,4 +62,9 @@ public class UserController {
     public void deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
     }
+
+    @PatchMapping("/{id}/activate")
+    public UserResponse activateUser(@PathVariable Integer id) {
+        return userService.activateUser(id);
+    }
 }
