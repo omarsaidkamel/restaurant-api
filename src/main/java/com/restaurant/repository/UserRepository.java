@@ -26,6 +26,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             Pageable pageable
     );
 
+    List<User> findByActiveFalse();
+
     List<User> findByActiveTrue();
 
     Page<User> findByActiveTrue(Pageable pageable);

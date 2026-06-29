@@ -30,6 +30,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Integer id);
 
+    List<Product> findByActiveFalse();
 
     List<Product> findByActiveTrue();
 

@@ -164,4 +164,11 @@ public class ProductService {
 
         return productMapper.toResponse(savedProduct);
     }
+
+    public List<ProductResponse> getInactiveProducts() {
+        return productRepository.findByActiveFalse()
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
+    }
 }

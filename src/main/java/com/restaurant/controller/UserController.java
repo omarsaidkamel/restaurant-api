@@ -42,6 +42,11 @@ public class UserController {
         );
     }
 
+    @GetMapping("/inactive")
+    public List<UserResponse> getInactiveUsers() {
+        return userService.getInactiveUsers();
+    }
+
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Integer id) {
         return userService.getUserById(id);

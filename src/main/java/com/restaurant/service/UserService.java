@@ -166,4 +166,11 @@ public class UserService {
 
         return userMapper.toResponse(savedUser);
     }
+
+    public List<UserResponse> getInactiveUsers() {
+        return userRepository.findByActiveFalse()
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
+    }
 }

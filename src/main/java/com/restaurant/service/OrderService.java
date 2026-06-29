@@ -79,6 +79,13 @@ public class OrderService {
                         "User not found with id: " + request.getUserId()
                 ));
 
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User is inactive: " + user.getName()
+            );
+        }
+
         Order order = new Order();
         order.setUser(user);
         order.setPlaced(true);

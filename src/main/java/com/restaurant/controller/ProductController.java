@@ -25,6 +25,11 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/inactive")
+    public List<ProductResponse> getInactiveProducts() {
+        return productService.getInactiveProducts();
+    }
+
     @GetMapping("/{id}")
     public ProductResponse getProductById(@PathVariable Integer id) {
         return productService.getProductById(id);
