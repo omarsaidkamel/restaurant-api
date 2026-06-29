@@ -5,6 +5,8 @@ import com.restaurant.dto.Product.ProductCreateRequest;
 import com.restaurant.dto.Product.ProductResponse;
 import com.restaurant.dto.Product.ProductUpdateRequest;
 import com.restaurant.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "Products", description = "APIs for managing restaurant products")
 public class ProductController {
 
     private final ProductService productService;
@@ -20,6 +23,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @Operation(summary = "Get all active products")
     @GetMapping
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
@@ -35,17 +39,20 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @Operation(summary = "Create a new product")
     @PostMapping
     public ProductResponse createProduct(@Valid @RequestBody ProductCreateRequest request) {
         return productService.createProduct(request);
     }
 
+    @Operation(summary = "Update product by id")
     @PutMapping("/{id}")
     public ProductResponse updateProduct(@PathVariable Integer id,
                                          @Valid @RequestBody ProductUpdateRequest request) {
         return productService.updateProduct(id, request);
     }
 
+    @Operation(summary = "Soft delete product by id")
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
@@ -70,6 +77,7 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Activate inactive product")
     @PatchMapping("/{id}/activate")
     public ProductResponse activateProduct(@PathVariable Integer id) {
         return productService.activateProduct(id);

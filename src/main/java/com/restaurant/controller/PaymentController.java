@@ -4,6 +4,8 @@ import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.dto.Payment.PaymentCreateRequest;
 import com.restaurant.dto.Payment.PaymentResponse;
 import com.restaurant.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/payments")
+@Tag(name = "Payments", description = "APIs for order payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -24,6 +27,7 @@ public class PaymentController {
         return paymentService.getAllPayments();
     }
 
+    @Operation(summary = "Search payments with pagination")
     @GetMapping("/search")
     public PaginatedResponse<PaymentResponse> searchPayments(
             @RequestParam(required = false) Integer orderId,
@@ -48,6 +52,7 @@ public class PaymentController {
         return paymentService.getPaymentById(id);
     }
 
+    @Operation(summary = "Pay an order")
     @PostMapping
     public PaymentResponse payOrder(@Valid @RequestBody PaymentCreateRequest request) {
         return paymentService.payOrder(request);
