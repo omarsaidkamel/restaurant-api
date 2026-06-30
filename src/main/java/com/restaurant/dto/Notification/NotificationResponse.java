@@ -15,6 +15,8 @@ public class NotificationResponse {
     private String message;
     private LocalDateTime sentAt;
 
+    public NotificationResponse() {}
+
     public NotificationResponse(Integer id, Integer orderId, String notificationType,
                                 String message, LocalDateTime sentAt) {
         this.id = id;
