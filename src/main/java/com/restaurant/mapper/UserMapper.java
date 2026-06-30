@@ -28,7 +28,8 @@ public class UserMapper {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getLoyaltyPoints()
+                user.getLoyaltyPoints(),
+                user.getActive()
         );
     }
 

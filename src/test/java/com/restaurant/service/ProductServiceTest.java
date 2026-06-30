@@ -6,7 +6,6 @@ import com.restaurant.dto.Product.ProductCreateRequest;
 import com.restaurant.dto.Product.ProductResponse;
 import com.restaurant.entity.Product;
 import com.restaurant.mapper.ProductMapper;
-import com.restaurant.repository.OrderItemRepository;
 import com.restaurant.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +26,6 @@ class ProductServiceTest {
 
     @Mock
     private ProductMapper productMapper;
-
-    @Mock
-    private OrderItemRepository orderItemRepository;
 
     @InjectMocks
     private ProductService productService;
