@@ -7,6 +7,8 @@ import com.restaurant.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,9 +56,10 @@ public class NotificationController {
     }
 
     @PostMapping
-    public NotificationResponse createNotification(
+    public ResponseEntity<NotificationResponse> createNotification(
             @Valid @RequestBody NotificationCreateRequest request
     ) {
-        return notificationService.createNotification(request);
+        NotificationResponse response = notificationService.createNotification(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

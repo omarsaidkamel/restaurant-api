@@ -8,6 +8,8 @@ import com.restaurant.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,10 +58,12 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @Operation(summary = "Create a new user")
     @PostMapping
-    public UserResponse createUser(@Valid @RequestBody UserCreateRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<UserResponse> createUser(
+            @Valid @RequestBody UserCreateRequest request
+    ) {
+        UserResponse response = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
@@ -70,8 +74,9 @@ public class UserController {
 
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Activate inactive user")

@@ -6,6 +6,8 @@ import com.restaurant.dto.Order.OrderResponse;
 import com.restaurant.dto.PaginatedResponse;
 import com.restaurant.service.OrderService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +33,13 @@ public class OrderController {
     }
 
     @PostMapping
-    public OrderResponse createOrder(@Valid @RequestBody OrderCreateRequest request) {
-        return orderService.createOrder(request);
+    public ResponseEntity<OrderResponse> createOrder(
+            @Valid @RequestBody OrderCreateRequest request
+    ) {
+        OrderResponse response = orderService.createOrder(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
     @GetMapping("/search")
     public PaginatedResponse<OrderSummaryResponse> searchOrders(

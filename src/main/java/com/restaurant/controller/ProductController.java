@@ -8,6 +8,8 @@ import com.restaurant.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,8 +43,11 @@ public class ProductController {
 
     @Operation(summary = "Create a new product")
     @PostMapping
-    public ProductResponse createProduct(@Valid @RequestBody ProductCreateRequest request) {
-        return productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(
+            @Valid @RequestBody ProductCreateRequest request
+    ) {
+        ProductResponse response = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Update product by id")
@@ -54,9 +59,11 @@ public class ProductController {
 
     @Operation(summary = "Soft delete product by id")
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
+
 
     @GetMapping("/search")
     public PaginatedResponse<ProductResponse> searchProducts(
