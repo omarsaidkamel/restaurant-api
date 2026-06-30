@@ -105,10 +105,10 @@ class ReportServiceTest {
         assertNotNull(result);
         assertEquals(2, result.size());
 
-        assertEquals(1, result.get(0).getProductId());
-        assertEquals("Shrimp", result.get(0).getProductName());
-        assertEquals(5L, result.get(0).getTotalQuantity());
-        assertEquals(0, BigDecimal.valueOf(1250).compareTo(result.get(0).getTotalSales()));
+        assertEquals(1, result.getFirst().getProductId());
+        assertEquals("Shrimp", result.getFirst().getProductName());
+        assertEquals(5L, result.getFirst().getTotalQuantity());
+        assertEquals(0, BigDecimal.valueOf(1250).compareTo(result.getFirst().getTotalSales()));
 
         verify(orderItemRepository).getProductSalesReport();
     }
@@ -140,9 +140,9 @@ class ReportServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Shrimp", result.get(0).getName());
-        assertEquals(3, result.get(0).getStock());
-        assertTrue(result.get(0).getActive());
+        assertEquals("Shrimp", result.getFirst().getName());
+        assertEquals(3, result.getFirst().getStock());
+        assertTrue(result.getFirst().getActive());
 
         verify(productRepository).findByActiveTrueAndStockLessThanEqual(5);
         verify(productMapper).toResponse(product);
